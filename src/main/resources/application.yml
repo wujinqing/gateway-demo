@@ -1,0 +1,87 @@
+debug: true
+
+spring:
+  cloud:
+    gateway:
+      metrics:
+        enabled: true
+      routes:
+#      - id: path_route
+#        uri: http://localhost:9080
+#        filters:
+#        - Pre=zhangsan
+#        predicates:
+#        - Path=/hello
+
+#      - id: after_route
+#        uri: http://localhost:9080/after
+#        predicates:
+#        - After=2019-11-28T15:50:47.789-08:00[Asia/Shanghai]
+
+#      - id: before_route
+#        uri: http://localhost:9080/before
+#        predicates:
+#        - Before=2019-11-28T15:50:47.789-08:00[Asia/Shanghai]
+
+#      - id: between_route
+#        uri: http://localhost:9080
+#        predicates:
+#        - Between=2019-11-28T14:50:47.789-08:00[Asia/Shanghai],2019-11-28T15:50:47.789-08:00[Asia/Shanghai]
+
+#      - id: header_route
+#        uri: http://localhost:9080/header
+#        predicates:
+#        - Header=headername1,headervalue1
+
+#      - id: post_method_route
+#        uri: http://localhost:9080
+#        predicates:
+#        - Method=POST
+
+#      - id: query_route
+#        uri: http://localhost:9080
+#        predicates:
+#        - Query=name
+
+#      - id: remoteaddrsee_route
+#        uri: http://localhost:9080
+#        predicates:
+#        - RemoteAddr=127.0.0.1
+
+#      - id: add_request_header_route
+#        uri: http://localhost:9080
+#        filters:
+#        - AddRequestHeader=name,zhangsan
+#        predicates:
+#        - Method=GET
+
+#      - id: add_request_parameter_route
+#        uri: http://localhost:9080
+#        filters:
+#        - AddRequestParameter=name,lisi
+#        predicates:
+#        - Method=GET
+
+#      - id: add_response_header_route
+#        uri: http://localhost:9080
+#        filters:
+#        - AddResponseHeader=name,wangwu
+#        predicates:
+#        - Method=GET
+
+      - id: hystrix_route
+        uri: http://localhost:9080
+        predicates:
+        - Method=GET
+        filters:
+        - Hystrix=name,wangwu
+
+management:
+  endpoint:
+    gateway:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: gateway
+
