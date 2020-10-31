@@ -36,7 +36,7 @@ public class PreGatewayFilterFactory extends AbstractGatewayFilterFactory<PreGat
     @Override
     public GatewayFilter apply(Config config) {
         return ((exchange, chain) -> {
-            System.out.println("PreGatewayFilter, name:" + config.getName());
+//            System.out.println("PreGatewayFilter, name:" + config.getName());
             return chain.filter(exchange);
         });
     }

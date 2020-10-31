@@ -1,7 +1,11 @@
 package com.jin;
 
+import com.netflix.hystrix.HystrixCommandGroupKey;
+import com.netflix.hystrix.HystrixCommandKey;
+import com.netflix.hystrix.HystrixObservableCommand;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import lombok.extern.slf4j.Slf4j;
+import org.jboss.logging.MDC;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -9,12 +13,17 @@ import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.route.Route;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
+import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.server.HttpServerRequest;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -69,16 +78,20 @@ public class Bootstrap {
 //                    return r.order(0).path("/ha").filters(f -> f.filter(new PreGatewayFilter())).uri(URL);
 //                })
 //                .build();
+
+
+
+
 //    }
 
     @Bean
     @Order(3)
     public GlobalFilter a() {
         return (exchange, chain) -> {
-            log.info("haha");
-            System.out.println("pre");
+//            log.info("haha");
+//            System.out.println("pre");
             return chain.filter(exchange).then(Mono.fromRunnable(() -> {
-                System.out.println("post");
+//                System.out.println("post");
             }));
         };
     }
@@ -87,5 +100,28 @@ public class Bootstrap {
     public String cmd()
     {
         return "";
+    }
+
+    @RequestMapping("/defaultFallback")
+    public String defaultFallback(@RequestHeader(required = false) String language, ServerHttpRequest request)
+    {
+        log.info("language: {}", language);
+        String name = (String) MDC.get("name");
+        return "this is default fallback.";
+    }
+
+//    @RequestMapping("/defaultFallback")
+//    public String defaultFallback()
+//    {
+//        return "this is default fallback.";
+//    }
+
+
+    @Bean("shoppingsetter")
+    public HystrixObservableCommand.Setter  s()
+    {
+        return HystrixObservableCommand.Setter
+                .withGroupKey(HystrixCommandGroupKey.Factory.asKey("myG"))
+                .andCommandKey(HystrixCommandKey.Factory.asKey("myC"));
     }
 }

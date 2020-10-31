@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono;
 public class PreGatewayFilter implements GatewayFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        System.out.println("this is PreGatewayFilter");
+//        System.out.println("this is PreGatewayFilter");
         return chain.filter(exchange);
     }
 

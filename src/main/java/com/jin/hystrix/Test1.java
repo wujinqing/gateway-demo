@@ -10,7 +10,7 @@ import com.netflix.hystrix.HystrixObservableCommand;
  */
 public class Test1 {
     public static void main(String[] args) {
-        HystrixCommand command = new HystrixCommand();
-        HystrixObservableCommand command = new HystrixObservableCommand(arg1, arg2);
+//        HystrixCommand command = new HystrixCommand();
+//        HystrixObservableCommand command = new HystrixObservableCommand(arg1, arg2);
     }
 }

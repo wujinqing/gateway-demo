@@ -1,8 +1,10 @@
 package com.jin;
 
+import org.slf4j.MDC;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
+import org.springframework.http.server.PathContainer;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -21,7 +23,12 @@ public class MyGlobalFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        System.out.println("MyGlobalFilter");
-        return chain.filter(exchange);
+//        System.out.println("MyGlobalFilter");
+        String path = exchange.getRequest().getPath().toString();
+        MDC.put("name", "zhangsan");
+        Mono<Void> m= chain.filter(exchange);
+
+        System.out.println(exchange.getResponse().getStatusCode());
+        return m;
     }
 }

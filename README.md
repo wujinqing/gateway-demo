@@ -33,7 +33,7 @@
 ### How It Works
 ![How It Works](doc/img/p01.png)
 
-
+### RoutePredicateHandlerMapping 
 
 
 
@@ -43,7 +43,9 @@
 
 ### Actuator
 
+#### Enables gateway functionality.
 > management.endpoint.gateway.enabled=true
+
 
 > management.endpoints.web.exposure.include=gateway
 
@@ -174,15 +176,25 @@ spring:
 
 
 
+### 超时设置
+#### 全局超时设置
+![](doc/img/p11.png)
+
+#### 每个路由超时设置
+![](doc/img/p12.png)
 
 
+### 网关超时、线程池配置 org.springframework.cloud.gateway.config.HttpClientProperties
 
 
+org.springframework.cloud.gateway.config.HttpClientProperties
+org.springframework.cloud.gateway.config.GatewayProperties
+org.springframework.cloud.gateway.actuate.GatewayControllerEndpoint
 
+org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties
 
-
-
-
+## 所有支持的配置都在这里
+> C:/Users/wujinqing/.m2/repository/org/springframework/cloud/spring-cloud-gateway-core/2.1.2.RELEASE/spring-cloud-gateway-core-2.1.2.RELEASE.jar!/META-INF/spring-configuration-metadata.json
 
 
 

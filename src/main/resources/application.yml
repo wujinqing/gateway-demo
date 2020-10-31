@@ -1,4 +1,4 @@
-debug: true
+trace: true
 
 spring:
   cloud:
@@ -69,12 +69,85 @@ spring:
 #        predicates:
 #        - Method=GET
 
-      - id: hystrix_route
-        uri: http://localhost:9080
+#      - id: hystrix_route
+#        uri: http://localhost:9080
+#        predicates:
+#        - Method=GET
+#        filters:
+#        - Hystrix=myHystrixCommonKey
+
+
+#      - id: hystrix_route
+#        uri: http://localhost:9080
+#        predicates:
+#        - Method=GET
+#        filters:
+#        - name: Hystrix
+#          args:
+#            name: myHystrixCommonKey
+#            fallbackUri: forward:/defaultFallback
+#            # setter的设置方式
+#            setter: "#{@shoppingsetter}"
+
+#      - id: path_route
+#        uri: http://localhost:9080
+#        predicates:
+#        - Path=/hello
+#
+#      - id: path2_route
+#        uri: http://localhost:9090
+#        predicates:
+#        - Path=/hystrix
+
+
+      - id: shopping_route
+        order: 1
+        uri: http://localhost:9090
         predicates:
-        - Method=GET
+        - Path=/sale/shopping,/sale/shopping2
         filters:
-        - Hystrix=name,wangwu
+        - name: Hystrix
+          args:
+            name: shoppingCommandKey
+            fallbackUri: forward:/defaultFallback
+
+
+        - RewritePath=/sale/(?<segment>.*), /$\{segment}
+
+      - id: pricing_route
+        order: 2
+        uri: http://localhost:9090
+        predicates:
+        - Path=/sale/pricing
+        filters:
+        - name: Hystrix
+          args:
+            name: pricingCommandKey
+            fallbackUri: forward:/defaultFallback
+
+      - id: booking_route
+        order: 3
+        uri: http://localhost:9090
+        predicates:
+        - Path=/sale/booking
+        filters:
+        - name: Hystrix
+          args:
+            name: bookingCommandKey
+            fallbackUri: forward:/defaultFallback
+
+
+      - id: sale_route
+        order: 4
+        uri: http://localhost:9090
+        predicates:
+        - Path=/sale/**
+        filters:
+        - name: Hystrix
+          args:
+            name: saleCommandKey
+            fallbackUri: forward:/defaultFallback
+
 
 management:
   endpoint:
@@ -83,5 +156,94 @@ management:
   endpoints:
     web:
       exposure:
-        include: gateway
+        include: gateway,hystrix.stream
+
+
+
+#hystrix.command.shoppingCommandKey.execution.isolation.thread.timeoutInMilliseconds: 2100
+hystrix.command.pricingCommandKey.execution.isolation.thread.timeoutInMilliseconds: 30000
+hystrix.command.bookingCommandKey.execution.isolation.thread.timeoutInMilliseconds: 30000
+hystrix.command.saleCommandKey.execution.isolation.thread.timeoutInMilliseconds: 1000
+
+
+#hystrix.command.saleCommandKey.circuitBreaker.requestVolumeThreshold: 3
+#hystrix.command.saleCommandKey.execution.isolation.strategy: THREAD
+#hystrix.threadpool.saleCommandKey.coreSize: 3
+#hystrix.threadpool.saleCommandKey.maximumSize: 3
+
+#Execution配置
+
+# 设置隔离策略，默认: SEMAPHORE, 可选值THREAD或者SEMAPHORE
+hystrix.command.shoppingCommandKey.execution.isolation.strategy: SEMAPHORE
+# 设置超时时间, 默认: 1000毫秒
+hystrix.command.shoppingCommandKey.execution.isolation.thread.timeoutInMilliseconds: 60000
+# 设置超时机制是否启用, 默认: true 启用
+hystrix.command.shoppingCommandKey.execution.timeout.enabled: true
+# 设置最大并发请求量, 默认: 10, 只有当隔离策略为SEMAPHORE时有效
+hystrix.command.shoppingCommandKey.execution.isolation.semaphore.maxConcurrentRequests: 10
+
+#Circuit Breaker配置
+
+# 是否开启熔断机制, 默认: true 开启
+hystrix.command.shoppingCommandKey.circuitBreaker.enabled: true
+# 触发熔断的最大并发请求量, 默认值：20, 当isolation.strategy为SEMAPHORE时，该值无效
+hystrix.command.shoppingCommandKey.circuitBreaker.requestVolumeThreshold: 20
+# 触发熔断的出错请求百分比，默认值：50，出错请求百分比超过这个比例时将触发熔断
+hystrix.command.shoppingCommandKey.circuitBreaker.errorThresholdPercentage: 50
+# 从熔断被触发开始到下一次请求允许进入的时间间隔，默认值：5000毫秒
+hystrix.command.shoppingCommandKey.circuitBreaker.sleepWindowInMilliseconds: 5000
+# 强制开启熔断, 默认: false 不开启， 如果设置为true所有请求都会被拒绝
+hystrix.command.shoppingCommandKey.circuitBreaker.forceOpen: false
+# 强制关闭熔断, 默认: false 不关闭， 如果设置为true所有请求都会被执行
+hystrix.command.shoppingCommandKey.circuitBreaker.forceClosed: false
+
+
+# Metrics 配置
+
+# 统计请求量的时间段，默认: 10000毫秒，当在timeInMilliseconds时间段内的请求量达到requestVolumeThreshold阈值时，
+# 继续判断这段时间内的错误百分比，如果错误百分比达到errorThresholdPercentage则触发熔断
+hystrix.command.shoppingCommandKey.metrics.rollingStats.timeInMilliseconds: 1000000
+# 请求量统计数据分成几份，默认：10，需要满足timeInMilliseconds%numBuckets == 0.
+hystrix.command.shoppingCommandKey.metrics.rollingStats.numBuckets: 10
+# 统计请求错误百分比的时间段，默认: 60000毫秒，当requestVolumeThreshold达到阈值并且errorThresholdPercentage也达到阈值将触发熔断
+hystrix.command.shoppingCommandKey.metrics.rollingPercentile.timeInMilliseconds: 60000
+# 请求错误百分比统计数据分成几份，默认：6，需要满足timeInMilliseconds%numBuckets == 0.
+hystrix.command.shoppingCommandKey.metrics.rollingPercentile.numBuckets: 6
+# 是否启用百分比统计, 默认: true
+hystrix.command.shoppingCommandKey.metrics.rollingPercentile.enabled: true
+
+# Fallback配置
+
+# 设置fallback机制是否启用, 默认: true 启用
+hystrix.command.shoppingCommandKey.fallback.enabled: true
+# 设置处理fallback的最大并发请求量, 默认: 10
+hystrix.command.shoppingCommandKey.fallback.isolation.semaphore.maxConcurrentRequests: 10
+
+# ThreadPool配置
+# 设置核心线程数个数, 默认: 10
+hystrix.threadpool.default.coreSize: 10
+# 由于所有command的threadPoolKey都是'HystrixGatewayFilterFactory', 所以可以这样配置
+hystrix.threadpool.HystrixGatewayFilterFactory.coreSize: 10
+# 设置核心线程数个数, 这个配置项不会生效因为所有command的threadPoolKey默认都等于groupKey, 即: 'HystrixGatewayFilterFactory'
+hystrix.threadpool.shoppingCommandKey.coreSize: 5
+# 设置最大线程个数, 默认: 10
+hystrix.threadpool.HystrixGatewayFilterFactory.maximumSize: 10
+# 设置任务等待队列大小, 默认: -1, 不进入等待队列, 直接拒绝, fast-fall
+hystrix.threadpool.HystrixGatewayFilterFactory.maxQueueSize: -1
+# 线程空闲时间, 默认: 1分钟
+hystrix.threadpool.HystrixThreadPoolKey.keepAliveTimeMinutes: 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
